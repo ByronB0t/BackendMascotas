@@ -1,4 +1,4 @@
-import {injectable, /* inject, */ BindingScope} from '@loopback/core';
+import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {Llaves} from '../config/llaves';
 import {Usuario} from '../models';
@@ -11,53 +11,53 @@ const jwt = require('jsonwebtoken');
 export class AutenticacionService {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository
-  ) {}
+    public usuarioRepository: UsuarioRepository
+  ) { }
 
   /*
    * Add service methods here
    */
 
 
-  GenerarContrasena(){
-    let contrasena = generador(8,false);
+  GenerarContrasena() {
+    let contrasena = generador(8, false);
     return contrasena;
   }
 
-  CifrarContrasena(contrasena:string){
+  CifrarContrasena(contrasena: string) {
     let contrasenaCifrada = cryptoJS.MD5(contrasena).toString();
     return contrasenaCifrada;
   }
 
-  IdentificarUsuario(usuario:string,contrasena:string){
-    try{
-      let p = this.usuarioRepository.findOne({where:{correo:usuario,contrasena:contrasena}})
-      if (p){
+  IdentificarUsuario(usuario: string, clave: string) {
+    try {
+      let p = this.usuarioRepository.findOne({where: {correo: usuario, contrasena: clave}})
+      if (p) {
         return p;
       }
       return false;
-    }catch{
+    } catch {
       return false;
     }
   }
 
-  GenerarTokenJWT(usuario: Usuario){
-    let token = jwt.sing({
-      data:{
+  GenerarTokenJWT(usuario: Usuario) {
+    let token = jwt.sign({
+      data: {
         id: usuario.id,
         correo: usuario.correo,
         nombre: usuario.nombre
       }
     },
-    Llaves.contrasenaJWT);
+      Llaves.contrasenaJWT);
     return token;
   }
 
-  ValidarToqueJWT(token:string){
-    try{
-      let datos = jwt.verify(token,Llaves.contrasenaJWT);
+  ValidarToqueJWT(token: string) {
+    try {
+      let datos = jwt.verify(token, Llaves.contrasenaJWT);
       return datos;
-    }catch{
+    } catch {
       return false;
     }
   }
